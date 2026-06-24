@@ -1592,6 +1592,8 @@
 
     <script>
       (function () {
+        let ctaNode, solNode, statsNode, revNode, customHeroNode;
+
         function getAlkalineSection() {
           const headings = document.getElementsByTagName("h2");
           for (let i = 0; i < headings.length; i++) {
@@ -1625,13 +1627,19 @@
         }
 
         function checkRoute() {
-          const cta = document.getElementById("homepage-cta");
-          const sol = document.getElementById("homepage-solutions");
-          const stats = document.getElementById("homepage-stats-banner");
-          const rev = document.getElementById("homepage-reviews");
-          const customHero = document.getElementById("homepage-custom-hero");
+          const cta = ctaNode || document.getElementById("homepage-cta");
+          const sol = solNode || document.getElementById("homepage-solutions");
+          const stats = statsNode || document.getElementById("homepage-stats-banner");
+          const rev = revNode || document.getElementById("homepage-reviews");
+          const customHero = customHeroNode || document.getElementById("homepage-custom-hero");
 
           if (!cta || !sol || !stats || !rev || !customHero) return;
+
+          ctaNode = cta;
+          solNode = sol;
+          statsNode = stats;
+          revNode = rev;
+          customHeroNode = customHero;
 
           const path = window.location.pathname;
           // Check for GitHub Pages subdirectory or index.html
@@ -1692,38 +1700,46 @@
               if (originalHero.id !== "homepage-custom-hero") {
                 originalHero.classList.add("hidden-force");
                 originalHero.style.display = "none"; // Hide original react hero
-                if (
-                  customHero.parentNode !== originalHero.parentNode ||
-                  customHero.nextElementSibling !== originalHero
-                ) {
-                  originalHero.parentNode.insertBefore(
-                    customHero,
-                    originalHero,
-                  ); // Inject our new custom hero right before it
+                if (originalHero.parentNode) {
+                  if (
+                    customHero.parentNode !== originalHero.parentNode ||
+                    customHero.nextElementSibling !== originalHero
+                  ) {
+                    try {
+                      originalHero.parentNode.insertBefore(
+                        customHero,
+                        originalHero,
+                      ); // Inject our new custom hero right before it
+                    } catch(e) {}
+                  }
                 }
               }
               if (
                 stats.previousElementSibling !== customHero &&
                 stats.previousElementSibling !== originalHero
               ) {
-                originalHero.parentNode.insertBefore(
-                  stats,
-                  originalHero.nextSibling,
-                ); // Place stats after the old hero
+                if (originalHero.parentNode) {
+                  try {
+                    originalHero.parentNode.insertBefore(
+                      stats,
+                      originalHero.nextSibling,
+                    ); // Place stats after the old hero
+                  } catch(e) {}
+                }
               }
             }
 
             const target = getAlkalineSection();
-            if (target) {
+            if (target && target.parentNode) {
               const mainElement = target.parentNode;
               if (sol.nextElementSibling !== target) {
-                mainElement.insertBefore(sol, target);
+                try { mainElement.insertBefore(sol, target); } catch(e) {}
               }
               if (target.nextElementSibling !== rev) {
-                mainElement.insertBefore(rev, target.nextSibling);
+                try { mainElement.insertBefore(rev, target.nextSibling); } catch(e) {}
               }
               if (mainElement && mainElement.lastElementChild !== cta) {
-                mainElement.appendChild(cta);
+                try { mainElement.appendChild(cta); } catch(e) {}
               }
             }
           } else {
